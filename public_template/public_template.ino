@@ -57,7 +57,7 @@ void waitForButtonRelease()
 {
   uint8_t stableReleaseMs = 0;
 
-  // 按鈕連續放開 30 ms 後才算真正放開。
+  // 輕觸開關連續放開 30 ms 後才算真正放開。
   while (stableReleaseMs < 30) {
     if (digitalRead(BUTTON_PIN) == HIGH) {
       stableReleaseMs++;
@@ -76,7 +76,7 @@ void enterDeepSleep()
 
   noInterrupts();
 
-  // 若按鈕已按下，就直接播放，不進入睡眠。
+  // 若輕觸開關已按下，就直接播放，不進入睡眠。
   if ((PINB & _BV(PB2)) == 0) {
     interrupts();
     return;

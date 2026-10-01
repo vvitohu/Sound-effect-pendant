@@ -9,6 +9,7 @@
 !/public_template/
 
 /assets/*
+!/assets/attiny85-pinout.png
 !/assets/board-preview.png
 /public_template/*
 !/public_template/public_template.ino
