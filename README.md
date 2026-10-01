@@ -1,6 +1,6 @@
 # ATtiny85 低功耗音效吊飾
 
-這是一份可重複使用的 Arduino 公版程式：ATtiny85 平時進入 Power-down 深度睡眠，按下輕觸開關後由中斷喚醒，使用被動蜂鳴器播放一段自訂音效，播放完並確認輕觸開關放開後再回到睡眠。
+這是一份可重複使用的 Arduino 公版程式：ATtiny85 平時進入 Power-down 深度睡眠，按下按鈕後由中斷喚醒，使用被動蜂鳴器播放一段自訂音效，播放完並確認按鈕放開後再回到睡眠。
 
 初學者只需要修改兩組資料：
 
@@ -14,7 +14,7 @@
   <img src="assets/board-preview.png" alt="音效吊飾 PCB 與元件配置示意圖" width="360">
 </p>
 
-上圖是 PCB 與元件配置示意圖，用來說明蜂鳴器、ATtiny85、輕觸開關與 CR2032 鈕扣電池的大致位置；它不是實體成品照片。
+上圖是 PCB 與元件配置示意圖，用來說明蜂鳴器、ATtiny85、按鈕與 CR2032 鈕扣電池的大致位置；它不是實體成品照片。
 
 ## 功能特色
 
@@ -23,7 +23,7 @@
 - 旋律資料放在 Flash（`PROGMEM`），節省 ATtiny85 的 SRAM。
 - 以毫秒直接設定每個音符或休止的長度。
 - 每一步使用約 90% 時間發聲、10% 時間斷音，讓音符較清楚。
-- 輕觸開關放開需連續穩定 30 ms，降低彈跳或長按造成的重播。
+- 按鈕放開需連續穩定 30 ms，降低彈跳或長按造成的重播。
 - 編譯時檢查音高與時間陣列數量，避免兩組資料錯位。
 
 ## 專案內容
@@ -76,11 +76,11 @@ ATtiny85 的 Arduino 腳位編號與 DIP-8 實體腳位不同，接線時要以�
 |---|---:|---:|---|
 | RESET | PB5 | 1 | 保留供 ISP 燒錄使用 |
 | 蜂鳴器 | PB1／`1` | 6 | 蜂鳴器另一端接 GND |
-| 輕觸開關 | PB2／`2`／INT0 | 7 | 輕觸開關另一端接 GND |
+| 按鈕 | PB2／`2`／INT0 | 7 | 按鈕另一端接 GND |
 | 電源 | VCC | 8 | 接 CR2032 電池盒正極（約 3 V） |
 | 接地 | GND | 4 | 接 CR2032 電池盒負極 |
 
-程式已使用 `INPUT_PULLUP`，所以輕觸開關不需要額外的下拉電阻；未按下時讀值為 `HIGH`，按下時為 `LOW`。
+程式已使用 `INPUT_PULLUP`，所以按鈕不需要額外的下拉電阻；未按下時讀值為 `HIGH`，按下時為 `LOW`。
 
 ## 1. 安裝 Arduino IDE 與 ATTinyCore
 
@@ -126,7 +126,7 @@ ATtiny85 的 Arduino 腳位編號與 DIP-8 實體腳位不同，接線時要以�
 燒錄時注意：
 
 - 不要同時接上電池或另一組電源。
-- 不要按住成品輕觸開關，否則 PB2／SCK 會被接到 GND。
+- 不要按住成品按鈕，否則 PB2／SCK 會被接到 GND。
 - PB1 同時是蜂鳴器輸出與 ISP 的 MISO；若燒錄不穩定，可先暫時斷開蜂鳴器再測試。
 - 確認 ATtiny85 的凹口或圓點方向，避免將 DIP-8 腳位左右接反。
 
@@ -220,10 +220,10 @@ melody and noteStepMs must contain the same number of items.
 
 1. 按 **Verify**，先確認程式可以編譯。
 2. 再次確認板型、Chip、Clock 與 Programmer 選項。
-3. 確認成品輕觸開關沒有被按住，且 CR2032 鈕扣電池已取下。
+3. 確認成品按鈕沒有被按住，且 CR2032 鈕扣電池已取下。
 4. 選擇 **Sketch > Upload Using Programmer**；不要使用一般 Upload 按鈕。
 5. 看到上傳完成後，拔除 USB，再移除 ISP 接線。
-6. 裝回 CR2032 鈕扣電池，按下輕觸開關試聽。
+6. 裝回 CR2032 鈕扣電池，按下按鈕試聽。
 7. 每次只改一種問題，再重新編譯與燒錄。
 
 ## 程式如何運作
@@ -232,7 +232,7 @@ melody and noteStepMs must contain the same number of items.
 %%{init: {"flowchart": {"nodeSpacing": 18, "rankSpacing": 22}, "themeVariables": {"fontSize": "12px"}}}%%
 flowchart TD
     A[上電初始化] --> B[Power-down]
-    B --> C[輕觸開關喚醒]
+    B --> C[按鈕喚醒]
     C --> D[讀取頻率與毫秒時間]
     D --> E[播放音符或休止]
     E --> F{還有下一步?}
@@ -244,8 +244,8 @@ flowchart TD
 主要函式：
 
 - `playSoundEffect()`：逐步讀取 Flash 中的音高與毫秒時間並播放。
-- `enterDeepSleep()`：設定 INT0 後進入 Power-down，等待輕觸開關喚醒。
-- `waitForButtonRelease()`：確認輕觸開關已穩定放開，避免同一次按壓重播。
+- `enterDeepSleep()`：設定 INT0 後進入 Power-down，等待按鈕喚醒。
+- `waitForButtonRelease()`：確認按鈕已穩定放開，避免同一次按壓重播。
 
 ## 常見問題
 
@@ -257,8 +257,8 @@ flowchart TD
 | 編譯出現陣列數量訊息 | `melody[]` 與 `noteStepMs[]` 長度不同 | 逐項計數，補上或移除對應資料 |
 | 上傳成功但沒有聲音 | 使用主動蜂鳴器、PB1 接線錯誤或所有頻率都是 `0` | 改用被動蜂鳴器，先測試原始公版 |
 | 音高或速度不對 | Clock fuse 與 IDE 的 8 MHz 設定不一致 | 重新核對設定並執行一次 Burn Bootloader |
-| 一按就重複播放 | 輕觸開關接線或放開狀態不正確 | 確認 PB2 使用內建上拉，放開時應為 HIGH |
-| 燒錄不穩定 | PB1 蜂鳴器或 PB2 輕觸開關影響 ISP 訊號 | 不要按住輕觸開關；必要時暫時斷開蜂鳴器 |
+| 一按就重複播放 | 按鈕接線或放開狀態不正確 | 確認 PB2 使用內建上拉，放開時應為 HIGH |
+| 燒錄不穩定 | PB1 蜂鳴器或 PB2 按鈕影響 ISP 訊號 | 不要按住按鈕；必要時暫時斷開蜂鳴器 |
 
 ## 驗證狀態
 
