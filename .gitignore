@@ -1,0 +1,14 @@
+# This repository intentionally publishes only the reusable public template.
+# Keep the other local sketches and internal notes out of GitHub.
+/*
+
+!/.gitignore
+!/README.md
+!/LICENSE
+!/assets/
+!/public_template/
+
+/assets/*
+!/assets/board-preview.png
+/public_template/*
+!/public_template/public_template.ino
